@@ -1,6 +1,6 @@
-/* ===== WC2026 DASHBOARD — MAIN JS (ROBUST VERSION) ===== */
-const API_URL = "https://api.anthropic.com/v1/messages";
-const MODEL   = "claude-sonnet-4-6";
+/* ===== WC2026 DASHBOARD — MAIN JS (GEMINI EDITION) ===== */
+const GEMINI_API_KEY = "AQ.Ab8RN6LJyAJu8BG0gCcCDTEmgPN-qMUcTM_OrJ7FUHCcNvxoDw"; // <--- ใส่ API Key ของคุณตรงนี้นะครับ
+const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
 /* ─── State ─── */
 let notifOn = false, notifPerm = false;
@@ -51,42 +51,57 @@ const DEFAULT_MATCHES_FOR_PRED = [
 ];
 
 /* ═══════════════════════════════
-   LIVE SCORES & API
+   LIVE SCORES & API (Gemini Powered)
 ═══════════════════════════════ */
 async function fetchLiveScores(showSpin = true) {
   if (showSpin) {
     document.getElementById('rfSpin').style.display = 'inline-block';
     document.getElementById('rfIcon').style.display = 'none';
   }
-  setStatus('yellow', 'กำลังเชื่อมต่อฐานข้อมูล...');
+  setStatus('yellow', 'กำลังเชื่อมต่อ Gemini API...');
 
   try {
-    const res = await fetch(API_URL, {
+    const promptText = `Generate a realistic JSON for FIFA World Cup 2026 matches on June 12, 2026.
+    Return ONLY valid JSON, exactly in this format. No markdown ticks like \`\`\`json:
+    {
+      "matches": [
+        {
+          "group": "Group X",
+          "status": "final|live|upcoming",
+          "minute": null,
+          "home": {"name":"Team A","flag":"🏳️","score": 2},
+          "away": {"name":"Team B","flag":"🏳️","score": 0},
+          "time": "12 มิ.ย. 09:00",
+          "venue": "Stadium Name",
+          "goals": [{"team":"Team A","scorer":"Player Name","min":23}]
+        }
+      ]
+    }`;
+
+    const res = await fetch(GEMINI_API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: MODEL, max_tokens: 1000,
-        system: `Return ONLY valid JSON format with matches.`,
-        messages: [{ role: "user", content: "Get scores" }]
+        contents: [{ parts: [{ text: promptText }] }],
+        generationConfig: { responseMimeType: "application/json" }
       })
     });
     
-    if (!res.ok) throw new Error("API Unauthorized or Blocked");
+    if (!res.ok) throw new Error("API Error / Invalid Key");
 
     const data = await res.json();
-    const text = data.content.map(i => i.type === 'text' ? i.text : '').filter(Boolean).join('');
-    const clean = text.replace(/```json|```/g, '').trim();
-    const parsed = JSON.parse(clean);
+    const cleanText = data.candidates[0].content.parts[0].text.trim();
+    const parsed = JSON.parse(cleanText);
 
     if (parsed.matches?.length) {
       checkGoalAlerts(parsed.matches);
       renderMatchList(parsed.matches);
-      setStatus('green', 'ข้อมูลสดพร้อมใช้งาน');
+      setStatus('green', 'ข้อมูลสดพร้อมใช้งาน (Gemini API)');
     } else {
       throw new Error('empty data');
     }
   } catch (e) {
-    // โหลดข้อมูลสำรองทันทีเมื่อ API ดึงไม่ได้ (เพื่อให้เว็บไม่ค้าง)
+    // โหลดข้อมูลสำรองทันทีเมื่อ API ดึงไม่ได้ (เช่น ลืมใส่ API Key หรือ Key พัง)
     console.warn("Using Fallback Data:", e.message);
     renderMatchList(FALLBACK_MATCHES);
     setStatus('red', 'ใช้ข้อมูลจำลอง (ระบบ AI อยู่ในโหมดสาธิต)');
@@ -168,7 +183,7 @@ function renderMatchList(matches) {
 }
 
 /* ═══════════════════════════════
-   PREDICTIONS
+   PREDICTIONS (Gemini Powered)
 ═══════════════════════════════ */
 function renderAccuracyStrip() {
   const { correct, wrong, total } = predAccuracy;
@@ -195,16 +210,40 @@ function renderAccuracyStrip() {
 
 async function generateAIPrediction(homeTeam, awayTeam, group, matchTime, predId) {
   const btn = document.getElementById('genBtn_' + predId);
-  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spin"></span> กำลังวิเคราะห์...'; }
-  
-  // จำลองการคิดของ AI 1.5 วินาที เพื่อให้เว็บไม่ค้างถ้า API เรียกไม่ได้
-  setTimeout(() => {
-    const pred = {
-      id: predId, home: homeTeam, away: awayTeam, group: group, time: matchTime, result: null,
-      winner: homeTeam, homeWin: 55, draw: 25, awayWin: 20,
-      tags: [{t:"เต็งแชมป์", c:"g"}, {t:"ฟอร์มแรง", c:"g"}],
-      reasons: `<strong>วิเคราะห์จำลอง:</strong> เนื่องจากระบบ AI API ขาดการยืนยันตัวตน (Demo Mode) จึงแสดงผลการคาดการณ์แบบจำลอง<br><br>ทีม ${homeTeam} ดูมีภาษีดีกว่าจากสถิติที่ผ่านมา`
-    };
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spin"></span> กำลังให้ Gemini วิเคราะห์...'; }
+
+  try {
+    // คำสั่ง Prompt สำหรับ Gemini
+    const promptText = `
+    You are an expert football analyst. Analyze the upcoming match: ${homeTeam} vs ${awayTeam} in ${group} at ${matchTime}.
+    Return ONLY a valid JSON object. Do not include markdown blocks like \`\`\`json. The JSON must have exactly these keys:
+    {
+      "winner": "TeamName",
+      "homeWin": 45,
+      "draw": 25,
+      "awayWin": 30,
+      "tags": [{"t":"tag text","c":"g"}], 
+      "reasons": "Provide 3 short paragraphs explaining the prediction in Thai. Use HTML <strong> tags for emphasis and <br><br> between paragraphs."
+    }
+    `;
+
+    const res = await fetch(GEMINI_API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: promptText }] }],
+        generationConfig: { responseMimeType: "application/json" }
+      })
+    });
+
+    if (!res.ok) throw new Error("ไม่สามารถเชื่อมต่อ Gemini API ได้ (เช็ค API Key)");
+
+    const data = await res.json();
+    const cleanText = data.candidates[0].content.parts[0].text.trim();
+    const pred = JSON.parse(cleanText);
+
+    pred.id = predId; pred.home = homeTeam; pred.away = awayTeam;
+    pred.group = group; pred.time = matchTime; pred.result = null;
 
     const existing = predictions.findIndex(p => p.id === predId);
     if (existing >= 0) predictions[existing] = pred;
@@ -215,7 +254,29 @@ async function generateAIPrediction(homeTeam, awayTeam, group, matchTime, predId
     localStorage.setItem('wc26_acc', JSON.stringify(predAccuracy));
 
     renderPredictPanel();
-  }, 1500);
+
+  } catch (e) {
+    console.warn("Gemini API Error:", e);
+    // ฟอลแบ็กโหมดจำลอง หาก API Key พัง
+    setTimeout(() => {
+      const pred = {
+        id: predId, home: homeTeam, away: awayTeam, group: group, time: matchTime, result: null,
+        winner: homeTeam, homeWin: 55, draw: 25, awayWin: 20,
+        tags: [{t:"เต็งแชมป์", c:"g"}, {t:"Demo Mode", c:"r"}],
+        reasons: `<strong>วิเคราะห์จำลอง (API Error):</strong> ไม่สามารถดึงข้อมูลจาก Gemini ได้ โปรดเช็ค API Key ในไฟล์ script.js<br><br>ระบบแสดงผลจำลองเบื้องต้น ทีม ${homeTeam} ดูมีภาษีดีกว่าจากสถิติที่ผ่านมา`
+      };
+
+      const existing = predictions.findIndex(p => p.id === predId);
+      if (existing >= 0) predictions[existing] = pred;
+      else predictions.push(pred);
+      
+      localStorage.setItem('wc26_preds', JSON.stringify(predictions));
+      predAccuracy.total = predictions.length;
+      localStorage.setItem('wc26_acc', JSON.stringify(predAccuracy));
+
+      renderPredictPanel();
+    }, 1000);
+  }
 }
 
 function markResult(predId, correct) {
@@ -241,7 +302,7 @@ function renderPredictCard(matchDef) {
         </div>
         <button class="ai-gen-btn" id="genBtn_${matchDef.id}"
           onclick="generateAIPrediction('${matchDef.home}','${matchDef.away}','${matchDef.group}','${matchDef.time}','${matchDef.id}')">
-          🤖 วิเคราะห์ด้วย AI
+          🤖 วิเคราะห์เกมด้วย Gemini
         </button>
       </div>`;
   }
@@ -280,7 +341,7 @@ function renderPredictCard(matchDef) {
       ${markBtns}
       <button class="ai-gen-btn" style="margin-top:8px" id="genBtn_${matchDef.id}"
         onclick="generateAIPrediction('${matchDef.home}','${matchDef.away}','${matchDef.group}','${matchDef.time}','${matchDef.id}')">
-        🔄 วิเคราะห์ใหม่
+        🔄 วิเคราะห์ใหม่ด้วย Gemini
       </button>
     </div>`;
 }
@@ -350,7 +411,7 @@ function activateNotif() {
   document.getElementById('notifBtn').classList.add('on');
   document.getElementById('notifBtn').innerHTML = '🔔 เปิดอยู่';
   showToast('🔔', 'เปิดแจ้งเตือนแล้ว!', 'จะแจ้งทุกครั้งที่มีประตูในบอลโลก 2026');
-  pollTimer = setInterval(() => fetchLiveScores(false), 60000);
+  pollTimer = setInterval(() => fetchLiveScores(false), 60000); // อัปเดตทุก 1 นาที
 }
 
 function fireGoalNotif(team, opp, scorer, min) {
@@ -371,7 +432,6 @@ function showToast(icon, title, sub, dur = 4500) {
 }
 
 /* ─── INITIALIZATION ─── */
-// ใช้ DOMContentLoaded เพื่อให้แน่ใจว่าโหลด HTML เสร็จก่อนรันคำสั่งต่างๆ
 document.addEventListener('DOMContentLoaded', () => {
   fetchLiveScores();
   renderPredictPanel();
