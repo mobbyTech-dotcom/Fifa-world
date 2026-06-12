@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>WC2026 Dashboard - Dark Stadium</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ===== HEADER ===== -->
+  <header class="header">
+    <div class="header-top">
+      <div class="logo-wrap">
+        <span class="logo-icon">⚽</span>
+        <div class="title-block">
+          <div class="t1">WC2026 Live</div>
+          <div class="t2">USA · Canada · Mexico</div>
+        </div>
+      </div>
+      <span class="badge-live">Live</span>
+      <button class="notif-btn" id="notifBtn" onclick="toggleNotif()">
+        🔔 แจ้งเตือน
+      </button>
+    </div>
+
+    <!-- ===== TABS ===== -->
+    <div class="tabs-bar">
+      <button class="tab-btn active" onclick="showTab('scores', this)">ผลบอลสด</button>
+      <button class="tab-btn" onclick="showTab('predict', this)">วิเคราะห์ AI 🤖</button>
+      <button class="tab-btn" onclick="showTab('groups', this)">ตารางกลุ่ม</button>
+    </div>
+  </header>
+
+  <!-- ===== MAIN PANELS ===== -->
+  <main>
+    <!-- SCORES PANEL -->
+    <div id="scores" class="panel active">
+      <div class="status-bar">
+        <div id="statusDot" class="dot-status yellow"></div>
+        <span id="statusMsg">กำลังดึงข้อมูล...</span>
+        <span class="last-upd" id="lastUpd"></span>
+      </div>
+      <button class="refresh-btn" onclick="fetchLiveScores()">
+        <span class="spin" id="rfSpin" style="display:none;"></span>
+        <span id="rfIcon">🔄</span> รีเฟรชผลบอล
+      </button>
+      <div id="scores-content">
+        <div style="text-align:center;padding:2rem;color:var(--text3)">
+          <span class="spin"></span> กำลังโหลด...
+        </div>
+      </div>
+    </div>
+
+    <!-- PREDICT PANEL -->
+    <div id="predict" class="panel">
+      <div id="predict-content"></div>
+    </div>
+
+    <!-- GROUPS PANEL -->
+    <div id="groups" class="panel">
+      <div id="groups-content"></div>
+    </div>
+  </main>
+
+  <!-- ===== TOAST AREA ===== -->
+  <div id="toastArea" class="toast-area"></div>
+
+  <!-- ===== SCRIPTS ===== -->
+  <script src="script.js"></script>
+
+</body>
+</html>
