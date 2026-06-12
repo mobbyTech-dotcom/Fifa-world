@@ -1,5 +1,6 @@
 /* ===== WC2026 DASHBOARD — MAIN JS (GEMINI EDITION) ===== */
-const GEMINI_API_KEY = "AQ.Ab8RN6LJyAJu8BG0gCcCDTEmgPN-qMUcTM_OrJ7FUHCcNvxoDw"; // <--- ใส่ API Key ของคุณตรงนี้นะครับ
+const GEMINI_API_KEY = "AQ.Ab8RN6LJyAJu8BG0gCcCDTEmgPN-qMUcTM_OrJ7FUHCcNvxoDw";
+// ใช้ Endpoint นี้สำหรับการเรียกแบบ REST ธรรมดา
 const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
 /* ─── State ─── */
@@ -51,6 +52,19 @@ const DEFAULT_MATCHES_FOR_PRED = [
 ];
 
 /* ═══════════════════════════════
+   HELPER: Clean JSON
+═══════════════════════════════ */
+// ฟังก์ชันนี้จะช่วยตัด Markdown ออกถ้า AI ส่งเกินมา
+function extractJSON(text) {
+  let clean = text.trim();
+  if (clean.startsWith('```json')) clean = clean.substring(7);
+  else if (clean.startsWith('```')) clean = clean.substring(3);
+  if (clean.endsWith('```')) clean = clean.substring(0, clean.length - 3);
+  return JSON.parse(clean.trim());
+}
+
+
+/* ═══════════════════════════════
    LIVE SCORES & API (Gemini Powered)
 ═══════════════════════════════ */
 async function fetchLiveScores(showSpin = true) {
@@ -62,12 +76,12 @@ async function fetchLiveScores(showSpin = true) {
 
   try {
     const promptText = `Generate a realistic JSON for FIFA World Cup 2026 matches on June 12, 2026.
-    Return ONLY valid JSON, exactly in this format. No markdown ticks like \`\`\`json:
+    Return ONLY a valid JSON object. No markdown ticks like \`\`\`json:
     {
       "matches": [
         {
           "group": "Group X",
-          "status": "final|live|upcoming",
+          "status": "final",
           "minute": null,
           "home": {"name":"Team A","flag":"🏳️","score": 2},
           "away": {"name":"Team B","flag":"🏳️","score": 0},
@@ -82,16 +96,15 @@ async function fetchLiveScores(showSpin = true) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: promptText }] }],
-        generationConfig: { responseMimeType: "application/json" }
+        contents: [{ parts: [{ text: promptText }] }]
       })
     });
     
-    if (!res.ok) throw new Error("API Error / Invalid Key");
+    if (!res.ok) throw new Error(`API Error: ${res.status}`);
 
     const data = await res.json();
-    const cleanText = data.candidates[0].content.parts[0].text.trim();
-    const parsed = JSON.parse(cleanText);
+    const rawText = data.candidates[0].content.parts[0].text;
+    const parsed = extractJSON(rawText);
 
     if (parsed.matches?.length) {
       checkGoalAlerts(parsed.matches);
@@ -101,10 +114,9 @@ async function fetchLiveScores(showSpin = true) {
       throw new Error('empty data');
     }
   } catch (e) {
-    // โหลดข้อมูลสำรองทันทีเมื่อ API ดึงไม่ได้ (เช่น ลืมใส่ API Key หรือ Key พัง)
     console.warn("Using Fallback Data:", e.message);
     renderMatchList(FALLBACK_MATCHES);
-    setStatus('red', 'ใช้ข้อมูลจำลอง (ระบบ AI อยู่ในโหมดสาธิต)');
+    setStatus('red', 'ใช้ข้อมูลจำลอง (ระบบ AI ขัดข้อง)');
   }
 
   if (showSpin) {
@@ -213,10 +225,9 @@ async function generateAIPrediction(homeTeam, awayTeam, group, matchTime, predId
   if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spin"></span> กำลังให้ Gemini วิเคราะห์...'; }
 
   try {
-    // คำสั่ง Prompt สำหรับ Gemini
     const promptText = `
-    You are an expert football analyst. Analyze the upcoming match: ${homeTeam} vs ${awayTeam} in ${group} at ${matchTime}.
-    Return ONLY a valid JSON object. Do not include markdown blocks like \`\`\`json. The JSON must have exactly these keys:
+    You are an expert football analyst. Analyze the upcoming match: ${homeTeam} vs ${awayTeam} in ${group}.
+    Return ONLY a valid JSON object. No markdown ticks like \`\`\`json. The JSON must have exactly these keys:
     {
       "winner": "TeamName",
       "homeWin": 45,
@@ -231,16 +242,15 @@ async function generateAIPrediction(homeTeam, awayTeam, group, matchTime, predId
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: promptText }] }],
-        generationConfig: { responseMimeType: "application/json" }
+        contents: [{ parts: [{ text: promptText }] }]
       })
     });
 
-    if (!res.ok) throw new Error("ไม่สามารถเชื่อมต่อ Gemini API ได้ (เช็ค API Key)");
+    if (!res.ok) throw new Error(`API Error: ${res.status}`);
 
     const data = await res.json();
-    const cleanText = data.candidates[0].content.parts[0].text.trim();
-    const pred = JSON.parse(cleanText);
+    const rawText = data.candidates[0].content.parts[0].text;
+    const pred = extractJSON(rawText);
 
     pred.id = predId; pred.home = homeTeam; pred.away = awayTeam;
     pred.group = group; pred.time = matchTime; pred.result = null;
@@ -257,13 +267,12 @@ async function generateAIPrediction(homeTeam, awayTeam, group, matchTime, predId
 
   } catch (e) {
     console.warn("Gemini API Error:", e);
-    // ฟอลแบ็กโหมดจำลอง หาก API Key พัง
     setTimeout(() => {
       const pred = {
         id: predId, home: homeTeam, away: awayTeam, group: group, time: matchTime, result: null,
         winner: homeTeam, homeWin: 55, draw: 25, awayWin: 20,
-        tags: [{t:"เต็งแชมป์", c:"g"}, {t:"Demo Mode", c:"r"}],
-        reasons: `<strong>วิเคราะห์จำลอง (API Error):</strong> ไม่สามารถดึงข้อมูลจาก Gemini ได้ โปรดเช็ค API Key ในไฟล์ script.js<br><br>ระบบแสดงผลจำลองเบื้องต้น ทีม ${homeTeam} ดูมีภาษีดีกว่าจากสถิติที่ผ่านมา`
+        tags: [{t:"ทีมเต็ง", c:"g"}, {t:"API Error", c:"r"}],
+        reasons: `<strong>วิเคราะห์จำลอง (เกิดข้อผิดพลาดจาก API):</strong> ${e.message}<br><br>เนื่องจากระบบไม่สามารถเชื่อมต่อ Gemini ได้ จึงแสดงข้อมูลจำลอง ทีม ${homeTeam} มีสถิติที่เหนือกว่า`
       };
 
       const existing = predictions.findIndex(p => p.id === predId);
