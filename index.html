@@ -8,7 +8,6 @@
 </head>
 <body>
 
-  <!-- ===== HEADER ===== -->
   <header class="header">
     <div class="header-top">
       <div class="logo-wrap">
@@ -24,7 +23,6 @@
       </button>
     </div>
 
-    <!-- ===== TABS ===== -->
     <div class="tabs-bar">
       <button class="tab-btn active" onclick="showTab('scores', this)">ผลบอลสด</button>
       <button class="tab-btn" onclick="showTab('predict', this)">วิเคราะห์ AI 🤖</button>
@@ -32,9 +30,7 @@
     </div>
   </header>
 
-  <!-- ===== MAIN PANELS ===== -->
   <main>
-    <!-- SCORES PANEL -->
     <div id="scores" class="panel active">
       <div class="status-bar">
         <div id="statusDot" class="dot-status yellow"></div>
@@ -52,21 +48,17 @@
       </div>
     </div>
 
-    <!-- PREDICT PANEL -->
     <div id="predict" class="panel">
       <div id="predict-content"></div>
     </div>
 
-    <!-- GROUPS PANEL -->
     <div id="groups" class="panel">
       <div id="groups-content"></div>
     </div>
   </main>
 
-  <!-- ===== TOAST AREA ===== -->
   <div id="toastArea" class="toast-area"></div>
 
-  <!-- ===== SCRIPTS ===== -->
   <script src="script.js"></script>
 
 </body>
