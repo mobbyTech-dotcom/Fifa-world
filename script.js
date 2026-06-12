@@ -1,5 +1,5 @@
 /* ===== WC2026 DASHBOARD — MAIN JS (GEMINI EDITION) ===== */
-const GEMINI_API_KEY = "AQ.Ab8RN6LJyAJu8BG0gCcCDTEmgPN-qMUcTM_OrJ7FUHCcNvxoDw";
+const GEMINI_API_KEY = "AIzaSyDszKzbzmU42cNKBqRXW0hDTHxnH2HZ9MY";
 // ใช้ Endpoint นี้สำหรับการเรียกแบบ REST ธรรมดา
 const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
