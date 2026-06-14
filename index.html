@@ -3,289 +3,749 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>WC2026 Dashboard - Live & AI</title>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  
+  <title>WC2026 Live Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg:       #0a0c0f; --bg2:      #12151a; --bg3:      #1a1e26;
-      --card:     #151820; --border:   #252a35; --border2:  #2e3444;
-      --red:      #e8001c; --red-dim:  #8b0011; --gold:     #f5c518;
-      --green:    #16a34a; --blue:     #2563eb; --text:     #f0f2f5;
-      --text2:    #8b92a8; --text3:    #5a6175;
-      --font-dis: 'Barlow Condensed', sans-serif; --font-body:'Inter', sans-serif;
-      --r: 12px; --r-sm: 8px;
+      --bg:    #080a0e; --bg2: #10131a; --bg3: #181d28;
+      --card:  #111520; --border: #1f2535; --border2: #2a3045;
+      --red:   #e8001c; --red2: #ff1a35; --red-dim: #5c000b;
+      --gold:  #f5c518; --green: #22c55e; --blue: #3b82f6;
+      --text:  #eef0f5; --text2: #7c8499; --text3: #485066;
+      --font-d:'Barlow Condensed',sans-serif; --font-b:'Inter',sans-serif;
+      --r:12px; --rs:8px;
     }
     *{box-sizing:border-box;margin:0;padding:0}
-    html{font-size:15px;-webkit-tap-highlight-color:transparent}
-    body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;padding-bottom:env(safe-area-inset-bottom);}
-    
-    .header{background:linear-gradient(180deg,#0d1017 0%,var(--bg) 100%);border-bottom:1px solid var(--border);padding:14px 16px 12px;position:sticky;top:0;z-index:100;backdrop-filter:blur(20px);}
-    .header-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-    .logo-icon{font-size:24px;line-height:1}
-    .title-block .t1{font-family:var(--font-dis);font-size:20px;font-weight:800;letter-spacing:.5px;color:var(--text);line-height:1.1;}
-    .title-block .t2{font-size:11px;color:#16a34a;letter-spacing:.3px;margin-top:1px;font-weight:600;}
-    .badge-live{display:inline-flex;align-items:center;gap:4px;background:var(--red);color:#fff;font-size:10px;font-weight:600;padding:3px 8px;border-radius:4px;margin-left:auto;}
-    .badge-live::before{content:'';width:6px;height:6px;background:#fff;border-radius:50%;animation:blink 1.2s ease infinite;}
-    @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-    
-    .tabs-bar{display:flex;border-bottom:1px solid var(--border);overflow-x:auto;}
-    .tabs-bar::-webkit-scrollbar{display:none}
-    .tab-btn{flex:1;font-family:var(--font-dis);font-size:14px;font-weight:600;padding:11px 8px;border:none;background:none;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;}
-    .tab-btn.active{color:var(--red);border-bottom-color:var(--red)}
-    
-    .panel{display:none;padding:14px 12px} .panel.active{display:block}
-    .status-bar{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text3);margin-bottom:10px;padding:7px 10px;background:var(--bg2);border-radius:var(--r-sm);border:1px solid var(--border);}
-    .dot-status{width:7px;height:7px;border-radius:50%;}
-    .dot-status.green{background:var(--green);box-shadow:0 0 6px var(--green)}
-    .dot-status.red{background:var(--red)} .dot-status.yellow{background:var(--gold)}
-    
-    .section-label{font-family:var(--font-dis);font-size:12px;font-weight:700;color:var(--text3);margin:14px 0 8px;display:flex;align-items:center;gap:6px;}
+    html{font-size:15px;-webkit-tap-highlight-color:transparent;scroll-behavior:smooth}
+    body{background:var(--bg);color:var(--text);font-family:var(--font-b);min-height:100vh}
+    button{font-family:var(--font-b);cursor:pointer}
+
+    /* ── HEADER ── */
+    .hdr{background:linear-gradient(180deg,#0b0e15,transparent);border-bottom:1px solid var(--border);
+      padding:12px 14px 0;position:sticky;top:0;z-index:200;backdrop-filter:blur(24px)}
+    .hdr-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+    .hdr-logo{font-size:22px;line-height:1}
+    .hdr-title{line-height:1}
+    .hdr-title .t1{font-family:var(--font-d);font-size:20px;font-weight:800;letter-spacing:.5px}
+    .hdr-title .t2{font-size:10px;color:var(--green);font-weight:600;letter-spacing:.3px;margin-top:1px}
+    .hdr-actions{margin-left:auto;display:flex;gap:6px;align-items:center}
+    .live-badge{display:inline-flex;align-items:center;gap:5px;background:var(--red);color:#fff;
+      font-size:10px;font-weight:700;padding:3px 9px;border-radius:4px;letter-spacing:.5px}
+    .live-badge::before{content:'';width:6px;height:6px;background:#fff;border-radius:50%;animation:pulse 1.4s ease infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+    .notif-btn{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;
+      padding:5px 10px;border-radius:var(--rs);border:1px solid var(--border2);
+      background:var(--bg3);color:var(--text2);transition:all .2s}
+    .notif-btn:hover{border-color:var(--border2);color:var(--text)}
+    .notif-btn.on{background:rgba(34,197,94,.12);border-color:rgba(34,197,94,.4);color:var(--green)}
+
+    /* ── TABS ── */
+    .tabs{display:flex;overflow-x:auto;border-bottom:1px solid var(--border);gap:0}
+    .tabs::-webkit-scrollbar{display:none}
+    .tab{flex:1;min-width:80px;font-family:var(--font-d);font-size:14px;font-weight:700;
+      padding:10px 8px;border:none;background:none;color:var(--text3);
+      border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;transition:color .15s}
+    .tab.active{color:var(--red2);border-bottom-color:var(--red2)}
+    .tab:hover{color:var(--text2)}
+
+    /* ── PANELS ── */
+    .panel{display:none;padding:12px 12px 32px} .panel.active{display:block}
+
+    /* ── STATUS BAR ── */
+    .status-bar{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text3);
+      padding:7px 10px;background:var(--bg2);border-radius:var(--rs);border:1px solid var(--border);margin-bottom:10px}
+    .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+    .dot.green{background:var(--green);box-shadow:0 0 8px #22c55e88}
+    .dot.red{background:var(--red)} .dot.yellow{background:var(--gold)}
+    .last-upd{margin-left:auto;font-size:10px;color:var(--text3)}
+
+    /* ── BUTTONS ── */
+    .btn-refresh{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;
+      padding:9px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--rs);
+      color:var(--text2);font-size:13px;font-weight:600;margin-bottom:10px;transition:all .2s}
+    .btn-refresh:hover{border-color:var(--blue);color:var(--text)}
+    .btn-ai{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;
+      padding:10px;background:var(--blue);border:none;border-radius:var(--rs);
+      color:#fff;font-size:13px;font-weight:600;margin-top:6px;transition:opacity .2s}
+    .btn-ai:disabled{opacity:.45;cursor:default}
+    .btn-ai.grey{background:var(--bg3);border:1px solid var(--border2);color:var(--text2)}
+
+    /* ── SECTION LABELS ── */
+    .section-label{font-family:var(--font-d);font-size:12px;font-weight:700;color:var(--text3);
+      margin:14px 0 7px;display:flex;align-items:center;gap:7px;letter-spacing:.5px}
     .section-label::after{content:'';flex:1;height:1px;background:var(--border)}
-    .match-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;margin-bottom:8px;position:relative;overflow:hidden;}
-    .match-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:transparent;}
-    .match-card.live::before{background:var(--red)} .match-card.live{border-color:rgba(232,0,28,.35)}
-    .match-status{font-size:10px;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
-    .ms-live{color:var(--red)} .ms-final{color:var(--text3)} .ms-soon{color:var(--gold)}
-    
-    .match-teams{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
-    .team-name{flex:1;font-family:var(--font-dis);font-size:18px;font-weight:700;} .team-name.away{text-align:right}
-    .score-block{display:flex;align-items:center;gap:6px;}
-    .score-num{font-family:var(--font-dis);font-size:32px;font-weight:800;min-width:28px;text-align:center;}
-    
-    .pred-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:10px;}
-    .pred-header{margin-bottom:10px}
-    .pred-match-title{font-family:var(--font-dis);font-size:19px;font-weight:700;}
-    .pred-meta{font-size:11px;color:var(--text3)}
-    
-    .prob-bar{display:flex;border-radius:5px;overflow:hidden;height:8px;gap:2px;margin:8px 0 4px}
-    .pb-home{background:var(--blue);} .pb-draw{background:#555} .pb-away{background:var(--red-dim);}
-    .prob-labels{display:flex;font-size:11px;margin-bottom:10px}
-    .pl-home{color:var(--blue);font-weight:600;min-width:60px} .pl-draw{flex:1;text-align:center;color:var(--text3)} .pl-away{color:#e87e87;font-weight:600;min-width:60px;text-align:right}
-    
-    .ai-gen-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:10px;background:var(--blue);border:none;border-radius:var(--r-sm);color:#fff;font-size:13px;font-weight:600;cursor:pointer;margin-top:6px;}
-    .ai-gen-btn:disabled{opacity:.5;cursor:default}
-    .refresh-btn{display:flex;align-items:center;justify-content:center;gap:6px;background:var(--bg3);border:1px solid var(--border2);color:var(--text2);font-size:13px;padding:9px 13px;border-radius:var(--r-sm);cursor:pointer;margin-bottom:10px;width:100%;font-weight:600;}
-    
-    .error-box {background:rgba(232,0,28,.1); border:1px solid var(--red); color:var(--red); padding:10px; border-radius:6px; font-size:12px; margin-top:10px; line-height:1.5;}
+
+    /* ── MATCH CARDS ── */
+    .match-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);
+      padding:11px 13px;margin-bottom:7px;position:relative;overflow:hidden;transition:border-color .2s}
+    .match-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:transparent}
+    .match-card.live::before{background:var(--red)}
+    .match-card.live{border-color:rgba(232,0,28,.3)}
+    .match-card:hover{border-color:var(--border2)}
+
+    .mc-status{font-size:10px;font-weight:600;margin-bottom:7px;display:flex;align-items:center;gap:6px;letter-spacing:.3px}
+    .s-live{color:var(--red2)} .s-final{color:var(--text3)} .s-soon{color:var(--gold)}
+
+    .mc-teams{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+    .team-nm{flex:1;font-family:var(--font-d);font-size:18px;font-weight:700;line-height:1}
+    .team-nm.away{text-align:right}
+    .score-wrap{display:flex;align-items:center;gap:5px;flex-shrink:0}
+    .score-n{font-family:var(--font-d);font-size:30px;font-weight:800;min-width:28px;text-align:center;line-height:1}
+    .score-sep{font-size:16px;color:var(--text3)}
+    .mc-meta{font-size:11px;color:var(--text3);display:flex;justify-content:space-between;gap:8px}
+
+    .goals-list{margin-top:7px;padding-top:7px;border-top:1px solid var(--border)}
+    .goal-row{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--text2);padding:2px 0}
+    .goal-min{font-size:10px;font-weight:700;color:var(--red2);min-width:26px;font-family:var(--font-d)}
+
+    /* ── PREDICTION CARDS ── */
+    .pred-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:10px}
+    .pred-title{font-family:var(--font-d);font-size:19px;font-weight:700;margin-bottom:2px}
+    .pred-sub{font-size:11px;color:var(--text3);margin-bottom:10px}
+    .winner-chip{display:inline-flex;align-items:center;gap:5px;
+      background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);
+      color:var(--green);font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;margin-bottom:8px}
+    .bar{display:flex;border-radius:4px;overflow:hidden;height:8px;gap:2px;margin:4px 0}
+    .bh{background:var(--blue)} .bd{background:#444} .ba{background:#7a0010}
+    .bar-labels{display:flex;font-size:11px;margin-bottom:10px}
+    .bl-h{color:var(--blue);font-weight:600;min-width:52px}
+    .bl-d{flex:1;text-align:center;color:var(--text3)}
+    .bl-a{color:#f06070;font-weight:600;text-align:right;min-width:52px}
+    .pred-reason{font-size:13px;color:var(--text2);line-height:1.65;padding-top:10px;border-top:1px solid var(--border)}
+    .pred-reason strong{color:var(--text);font-weight:600}
+
+    /* ── GROUPS TABLE ── */
+    .groups-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px}
+    .grp-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+    .grp-hdr{font-family:var(--font-d);font-size:13px;font-weight:700;letter-spacing:.5px;
+      padding:8px 12px;background:var(--bg3);border-bottom:1px solid var(--border);color:var(--text3)}
+    .grp-card table{width:100%;border-collapse:collapse}
+    .grp-card th{font-size:10px;color:var(--text3);font-weight:600;text-align:center;padding:6px 4px;letter-spacing:.3px}
+    .grp-card th.tl{text-align:left;padding-left:12px}
+    .grp-card td{font-size:13px;text-align:center;padding:6px 4px;border-top:1px solid var(--border)}
+    .grp-card td.tl{text-align:left;padding-left:12px;font-weight:500}
+    .grp-card tr.qualified td{color:var(--text)}
+    .grp-card tr.out td{color:var(--text3)}
+    .pts-val{font-weight:700;color:var(--blue)}
+
+    /* ── TOAST NOTIFICATIONS ── */
+    .toast-wrap{position:fixed;bottom:20px;right:14px;display:flex;flex-direction:column;gap:8px;
+      z-index:9999;pointer-events:none;max-width:290px}
+    .toast{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);
+      padding:11px 14px;box-shadow:0 4px 20px rgba(0,0,0,.5);pointer-events:auto;
+      display:flex;gap:9px;align-items:flex-start;animation:toastIn .25s ease;max-width:100%}
+    .toast.goal{border-left:3px solid var(--red2);border-color:rgba(232,0,28,.4)}
+    @keyframes toastIn{from{transform:translateY(12px) scale(.97);opacity:0}to{transform:none;opacity:1}}
+    .toast-icon{font-size:18px;line-height:1;flex-shrink:0;margin-top:1px}
+    .toast-body{flex:1;min-width:0}
+    .toast-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px}
+    .toast-sub{font-size:11px;color:var(--text2)}
+    .toast-x{background:none;border:none;color:var(--text3);font-size:18px;line-height:1;padding:0;align-self:flex-start}
+    .toast-x:hover{color:var(--text)}
+
+    /* ── ERROR BOX ── */
+    .err-box{background:rgba(232,0,28,.08);border:1px solid rgba(232,0,28,.3);
+      color:#f07070;padding:9px 12px;border-radius:var(--rs);font-size:12px;line-height:1.6;margin-top:8px}
+
+    /* ── LOADING ── */
+    .loading-center{text-align:center;padding:2rem;color:var(--text3)}
+    .spin{display:inline-block;width:16px;height:16px;border:2px solid var(--border2);
+      border-top-color:var(--red2);border-radius:50%;animation:sp .7s linear infinite;vertical-align:middle}
+    @keyframes sp{to{transform:rotate(360deg)}}
   </style>
 </head>
 <body>
 
-  <header class="header">
-    <div class="header-top">
-      <span class="logo-icon">⚽</span>
-      <div class="title-block">
-        <div class="t1">WC2026 Live</div>
-        <div class="t2">Powered by Real API & Gemini</div>
-      </div>
-      <span class="badge-live">Live</span>
+<header class="hdr">
+  <div class="hdr-top">
+    <span class="hdr-logo">⚽</span>
+    <div class="hdr-title">
+      <div class="t1">WC2026 Live</div>
+      <div class="t2">USA · CANADA · MEXICO</div>
     </div>
-    <div class="tabs-bar">
-      <button class="tab-btn active" onclick="showTab('scores', this)">ผลบอลสด</button>
-      <button class="tab-btn" onclick="showTab('predict', this)">วิเคราะห์ AI 🤖</button>
+    <div class="hdr-actions">
+      <button class="notif-btn" id="notifBtn" onclick="toggleNotif()">🔔 แจ้งเตือน</button>
+      <span class="live-badge">LIVE</span>
     </div>
-  </header>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('scores',this)">ผลบอลสด</button>
+    <button class="tab" onclick="showTab('predict',this)">วิเคราะห์ AI 🤖</button>
+    <button class="tab" onclick="showTab('groups',this)">ตารางกลุ่ม</button>
+  </div>
+</header>
 
-  <main>
-    <div id="scores" class="panel active">
-      <div class="status-bar">
-        <div id="statusDot" class="dot-status yellow"></div><span id="statusMsg">กำลังเชื่อมต่อฐานข้อมูลกีฬา...</span>
-      </div>
-      <button class="refresh-btn" onclick="fetchRealLiveScores()">🔄 อัปเดตผลบอลล่าสุดของวันนี้</button>
-      <div id="scores-content"><div style="text-align:center;padding:2rem;color:var(--text3)">กำลังโหลด...</div></div>
+<main>
+  <!-- TAB: SCORES -->
+  <div id="scores" class="panel active">
+    <div class="status-bar">
+      <div class="dot yellow" id="sDot"></div>
+      <span id="sMsg">กำลังโหลด...</span>
+      <span class="last-upd" id="sTime"></span>
     </div>
+    <button class="btn-refresh" onclick="loadScores()">
+      <span class="spin" id="rfSpin" style="display:none"></span>
+      🔄 อัปเดตผลล่าสุด
+    </button>
+    <div id="scores-content"><div class="loading-center"><span class="spin"></span> กำลังโหลด...</div></div>
+  </div>
 
-    <div id="predict" class="panel">
-      <div id="predict-content"></div>
-    </div>
-  </main>
+  <!-- TAB: PREDICTIONS -->
+  <div id="predict" class="panel">
+    <div id="predict-content"></div>
+  </div>
 
-  <script>
-    /* =========================================
-       API KEYS SETUP (ใส่คีย์ของคุณเรียบร้อยแล้ว)
-    ========================================= */
-    const GEMINI_API_KEY = "AIzaSyDszKzbzmU42cNKBqRXW0hDTHxnH2HZ9MY"; 
-    const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + GEMINI_API_KEY;
-    const SPORTS_API_KEY = "1a000774c906dc63552da55318b71f46"; 
+  <!-- TAB: GROUPS -->
+  <div id="groups" class="panel">
+    <div id="groups-content"><div class="loading-center"><span class="spin"></span></div></div>
+  </div>
+</main>
 
-    /* =========================================
-       ระบบดึงผลบอลสด (REAL SPORTS API)
-    ========================================= */
-    const MOCK_REAL_MATCHES = [
-      { group:"Group J", status:"live", minute: "62", home:{name:"Argentina",flag:"🇦🇷",score:1}, away:{name:"Algeria",flag:"🇩🇿",score:0}, time:"14 มิ.ย. 02:00" },
-      { group:"Group I", status:"upcoming", minute: null, home:{name:"France",flag:"🇫🇷",score:null}, away:{name:"Senegal",flag:"🇸🇳",score:null}, time:"14 มิ.ย. 08:00" },
-      { group:"Group E", status:"upcoming", minute: null, home:{name:"Germany",flag:"🇩🇪",score:null}, away:{name:"Ivory Coast",flag:"🇨🇮",score:null}, time:"15 มิ.ย. 02:00" }
-    ];
+<div class="toast-wrap" id="toastArea"></div>
 
-    async function fetchRealLiveScores() {
-      setStatus('yellow', 'กำลังเชื่อมต่อ API-Football...');
-      try {
-        if (!SPORTS_API_KEY) throw new Error("ยังไม่ได้ใส่คีย์ API-Football");
+<script>
+/* =========================================================
+   CONFIG  — ใส่ API Keys ของคุณตรงนี้
+   SPORTS_API_KEY: https://www.api-football.com (free tier)
+   GEMINI_API_KEY: https://aistudio.google.com/app/apikey
+   CLAUDE_API:     built-in (ไม่ต้องใส่ key)
+========================================================= */
+const SPORTS_API_KEY = "1a000774c906dc63552da55318b71f46";
+const GEMINI_API_KEY = "AIzaSyDszKzbzmU42cNKBqRXW0hDTHxnH2HZ9MY";
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+const CLAUDE_URL = "https://api.anthropic.com/v1/messages";
 
-        // ดึงวันที่ปัจจุบันจากเครื่อง เพื่อดูโปรแกรมเตะของวันนี้
-        const today = new Date().toISOString().split('T')[0];
-        
-        const res = await fetch(`https://v3.football.api-sports.io/fixtures?date=${today}`, {
-          method: "GET",
-          headers: {
-            "x-apisports-key": SPORTS_API_KEY
-          }
-        });
-        
-        if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
-        const data = await res.json();
+/* =========================================================
+   NOTIFICATION SYSTEM
+========================================================= */
+let notifOn = false;
+let notifPermission = false;
+let pollInterval = null;
+let prevGoalData = {};
 
-        // เช็คว่าโควต้า API เต็มหรือ Key ผิดไหม
-        if (data.errors && Object.keys(data.errors).length > 0) {
-           throw new Error(Object.values(data.errors)[0]);
-        }
-
-        // คัดกรองและจัดรูปแบบข้อมูล
-        if (data.response && data.response.length > 0) {
-           const liveMatches = data.response.map(match => {
-             const s = match.fixture.status.short;
-             let status = 'upcoming';
-             // สถานะจบเกม
-             if (['FT', 'PEN', 'AET', 'AWD'].includes(s)) status = 'final';
-             // สถานะกำลังเตะ
-             else if (['1H', '2H', 'HT', 'ET', 'BT', 'P', 'SUSP', 'INT', 'LIVE'].includes(s)) status = 'live';
-
-             // แปลงเวลาให้ดูง่ายขึ้นเป็นเวลาไทย
-             const matchTime = new Date(match.fixture.date).toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'});
-             const elapsed = match.fixture.status.elapsed;
-
-             return {
-               group: match.league.name, // ใช้ชื่อลีกแทนไปก่อน
-               status: status,
-               minute: elapsed ? elapsed : null,
-               home: { name: match.teams.home.name, flag: "🏠", score: match.goals.home },
-               away: { name: match.teams.away.name, flag: "✈️", score: match.goals.away },
-               time: `${matchTime} น.`,
-               venue: match.fixture.venue.name || 'ไม่ระบุสนาม',
-               goals: [] 
-             };
-           });
-
-           // เรียงลำดับ: คู่สดขึ้นก่อน -> คู่รอเตะ -> คู่จบแล้ว
-           liveMatches.sort((a, b) => {
-             const rank = { 'live': 1, 'upcoming': 2, 'final': 3 };
-             return rank[a.status] - rank[b.status];
-           });
-
-           // แสดงผลแค่ 15 คู่แรกกันหน้าเว็บโหลดหนักเกินไป
-           renderMatchList(liveMatches.slice(0, 15));
-           setStatus('green', 'เชื่อมต่อสนามจริงสำเร็จ (API-Football)');
-        } else {
-           throw new Error("วันนี้ไม่มีโปรแกรมการแข่งขันฟุตบอล");
-        }
-
-      } catch (e) {
-        console.warn("สลับมาใช้ข้อมูลจำลอง สาเหตุ:", e.message);
-        renderMatchList(MOCK_REAL_MATCHES); 
-        setStatus('red', `ระบบจำลอง (${e.message})`);
-      }
-    }
-
-    function renderMatchList(matches) {
-      let html = '';
-      matches.forEach(m => {
-        let sClass = m.status === 'live' ? 'ms-live' : m.status === 'final' ? 'ms-final' : 'ms-soon';
-        let sText = m.status === 'live' ? `🔴 LIVE ${m.minute ? m.minute + "'" : ''}` : m.status === 'final' ? '✅ จบแล้ว' : `⏰ ${m.time}`;
-        let homeScore = m.home.score !== null ? m.home.score : '-';
-        let awayScore = m.away.score !== null ? m.away.score : '-';
-
-        html += `
-        <div class="match-card ${m.status}">
-          <div class="match-status"><span class="${sClass}">${sText}</span> | ${m.group}</div>
-          <div class="match-teams">
-            <span class="team-name">${m.home.flag} ${m.home.name}</span>
-            <div class="score-block">
-              <span class="score-num">${homeScore}</span> : <span class="score-num">${awayScore}</span>
-            </div>
-            <span class="team-name away">${m.away.name} ${m.away.flag}</span>
-          </div>
-        </div>`;
+function toggleNotif() {
+  if (!notifOn) {
+    if ('Notification' in window) {
+      Notification.requestPermission().then(p => {
+        notifPermission = p === 'granted';
+        enableNotif();
       });
-      document.getElementById('scores-content').innerHTML = html;
+    } else {
+      enableNotif();
     }
+  } else {
+    disableNotif();
+  }
+}
 
-    function setStatus(color, msg) {
-      document.getElementById('statusDot').className = 'dot-status ' + color;
-      document.getElementById('statusMsg').textContent = msg;
-    }
+function enableNotif() {
+  notifOn = true;
+  document.getElementById('notifBtn').classList.add('on');
+  document.getElementById('notifBtn').textContent = '🔔 เปิดอยู่';
+  toast('🔔', 'เปิดการแจ้งเตือนแล้ว!', 'จะแจ้งทันทีเมื่อมีประตูหรือเกมเริ่ม', false, 4000);
+  // poll ทุก 60 วินาที
+  if (!pollInterval) pollInterval = setInterval(loadScores, 60000);
+}
 
-    /* =========================================
-       ระบบ AI วิเคราะห์เกม (GEMINI API)
-    ========================================= */
-    let predictions = JSON.parse(localStorage.getItem('wc26_preds') || '[]');
-    const DEFAULT_MATCHES_FOR_PRED = [
-      { id:'p1', home:'Argentina 🇦🇷', away:'Algeria 🇩🇿', group:'Group J', time:'14 มิ.ย. 02:00' },
-      { id:'p2', home:'France 🇫🇷', away:'Senegal 🇸🇳', group:'Group I', time:'14 มิ.ย. 08:00' },
-      { id:'p3', home:'Germany 🇩🇪', away:'Ivory Coast 🇨🇮', group:'Group E', time:'15 มิ.ย. 02:00' }
-    ];
+function disableNotif() {
+  notifOn = false;
+  document.getElementById('notifBtn').classList.remove('on');
+  document.getElementById('notifBtn').textContent = '🔔 แจ้งเตือน';
+  clearInterval(pollInterval); pollInterval = null;
+  toast('🔕', 'ปิดแจ้งเตือนแล้ว', '', false, 3000);
+}
 
-    function extractJSON(text) {
-      let clean = text.trim();
-      if (clean.startsWith('```json')) clean = clean.substring(7);
-      else if (clean.startsWith('```')) clean = clean.substring(3);
-      if (clean.endsWith('```')) clean = clean.substring(0, clean.length - 3);
-      return JSON.parse(clean.trim());
-    }
+function toast(icon, title, sub='', isGoal=false, dur=5000) {
+  const area = document.getElementById('toastArea');
+  const el = document.createElement('div');
+  el.className = `toast${isGoal ? ' goal' : ''}`;
+  el.innerHTML = `<span class="toast-icon">${icon}</span>
+    <div class="toast-body">
+      <div class="toast-title">${title}</div>
+      ${sub ? `<div class="toast-sub">${sub}</div>` : ''}
+    </div>
+    <button class="toast-x" onclick="this.closest('.toast').remove()">×</button>`;
+  area.appendChild(el);
+  setTimeout(() => el.remove(), dur);
+}
 
-    async function generateAIPrediction(homeTeam, awayTeam, group, matchTime, predId) {
-      const btn = document.getElementById('genBtn_' + predId);
-      if (btn) { btn.disabled = true; btn.innerHTML = 'กำลังประมวลผลด้วย Gemini...'; }
-      try {
-        const res = await fetch(GEMINI_API_URL, { 
-          method: "POST", headers: { "Content-Type": "application/json" }, 
-          body: JSON.stringify({ contents: [{ parts: [{ text: `You are a football expert. Analyze match: ${homeTeam} vs ${awayTeam}. Return valid JSON ONLY: {"winner": "Team", "homeWin": 45, "draw": 25, "awayWin": 30, "reasons": "Explain in Thai (HTML strong tags allowed)"}` }] }] }) 
-        });
-        
-        const data = await res.json();
-        if (!res.ok) throw new Error(`${data.error?.message || 'API ถูกบล็อก'}`);
-        
-        const pred = extractJSON(data.candidates[0].content.parts[0].text);
-        pred.id = predId; pred.home = homeTeam; pred.away = awayTeam; pred.group = group; pred.time = matchTime;
-        
-        const existing = predictions.findIndex(p => p.id === predId);
-        if (existing >= 0) predictions[existing] = pred; else predictions.push(pred);
-        localStorage.setItem('wc26_preds', JSON.stringify(predictions));
-        renderPredictPanel();
-      } catch (e) {
-        const errHtml = `<div class="error-box"><strong>พบข้อผิดพลาดจาก Gemini:</strong><br>${e.message}</div>`;
-        btn.insertAdjacentHTML('afterend', errHtml);
-        btn.innerHTML = 'ลองใหม่อีกครั้ง'; btn.disabled = false;
-      }
-    }
-
-    function renderPredictPanel() {
-      let html = '';
-      DEFAULT_MATCHES_FOR_PRED.forEach(m => {
-        const pred = predictions.find(p => p.id === m.id);
-        if (!pred) {
-          html += `<div class="pred-card"><div class="pred-header"><div class="pred-match-title">${m.home} vs ${m.away}</div></div><button class="ai-gen-btn" id="genBtn_${m.id}" onclick="generateAIPrediction('${m.home}','${m.away}','${m.group}','${m.time}','${m.id}')">✨ ให้ Gemini วิเคราะห์เกมนี้</button></div>`;
-        } else {
-          html += `<div class="pred-card"><div class="pred-header"><div class="pred-match-title">${pred.home} vs ${pred.away}</div></div><div style="font-size:13px; margin-bottom:6px">คาดว่า <strong>${pred.winner}</strong> ชนะ</div><div class="prob-bar"><div class="pb-home" style="flex:${pred.homeWin}"></div><div class="pb-draw" style="flex:${pred.draw}"></div><div class="pb-away" style="flex:${pred.awayWin}"></div></div><div class="prob-labels"><span class="pl-home">${pred.homeWin}%</span><span class="pl-draw">${pred.draw}%</span><span class="pl-away">${pred.awayWin}%</span></div><div style="font-size:13px; color:#8b92a8; margin-top:10px">${pred.reasons}</div><button class="ai-gen-btn" style="background:#252a35" id="genBtn_${m.id}" onclick="generateAIPrediction('${m.home}','${m.away}','${m.group}','${m.time}','${m.id}')">🔄 วิเคราะห์ใหม่</button></div>`;
-        }
-      });
-      document.getElementById('predict-content').innerHTML = html;
-    }
-
-    /* =========================================
-       UI TABS CONTROL
-    ========================================= */
-    function showTab(id, el) { 
-      document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active')); 
-      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active')); 
-      document.getElementById(id).classList.add('active'); el.classList.add('active'); 
-    }
-
-    // โหลดข้อมูลเมื่อเปิดหน้าเว็บ
-    document.addEventListener('DOMContentLoaded', () => { 
-      fetchRealLiveScores(); 
-      renderPredictPanel(); 
+function fireGoalNotif(team, scorer, minute, opponent) {
+  toast('⚽', `ประตู! ${team}`, `${scorer} ยิง นาที ${minute}' (vs ${opponent})`, true, 7000);
+  if (notifPermission && notifOn) {
+    new Notification(`⚽ ประตู! ${team}`, {
+      body: `${scorer} ยิงนาทีที่ ${minute}' กับ ${opponent}`,
+      icon: 'https://em-content.zobj.net/source/twitter/348/soccer-ball_26bd.png'
     });
-  </script>
+  }
+}
+
+function fireMatchStartNotif(home, away, group) {
+  toast('🏟️', `เกมเริ่มแล้ว!`, `${home} vs ${away} · ${group}`, false, 5000);
+  if (notifPermission && notifOn) {
+    new Notification(`🏟️ เกมเริ่มแล้ว!`, { body: `${home} vs ${away}` });
+  }
+}
+
+function checkGoalChanges(matches) {
+  if (!notifOn) return;
+  matches.forEach(m => {
+    const key = `${m.home.name}__${m.away.name}`;
+    const hScore = m.home.score ?? 0;
+    const aScore = m.away.score ?? 0;
+    const prev = prevGoalData[key];
+
+    // เกมเพิ่งเริ่ม
+    if (!prev && m.status === 'live') {
+      fireMatchStartNotif(m.home.name, m.away.name, m.group);
+    }
+    if (prev) {
+      if (hScore > prev.home) {
+        const g = (m.goals || []).filter(g => g.team === m.home.name).slice(-1)[0];
+        fireGoalNotif(m.home.flag + ' ' + m.home.name, g?.scorer || '?', g?.min || m.minute || '?', m.away.name);
+      }
+      if (aScore > prev.away) {
+        const g = (m.goals || []).filter(g => g.team === m.away.name).slice(-1)[0];
+        fireGoalNotif(m.away.flag + ' ' + m.away.name, g?.scorer || '?', g?.min || m.minute || '?', m.home.name);
+      }
+    }
+    prevGoalData[key] = { home: hScore, away: aScore };
+  });
+}
+
+/* =========================================================
+   FALLBACK DATA (ข้อมูลสำรองเมื่อ API ไม่ตอบสนอง)
+========================================================= */
+const FALLBACK_MATCHES = [
+  { group:"Group J", status:"live", minute:62,
+    home:{name:"Argentina",flag:"🇦🇷",score:1}, away:{name:"Algeria",flag:"🇩🇿",score:0},
+    time:"14 มิ.ย. 02:00 น.",venue:"MetLife Stadium, NJ",
+    goals:[{team:"Argentina",scorer:"Messi",min:34}] },
+  { group:"Group I", status:"upcoming", minute:null,
+    home:{name:"France",flag:"🇫🇷",score:null}, away:{name:"Senegal",flag:"🇸🇳",score:null},
+    time:"14 มิ.ย. 08:00 น.",venue:"AT&T Stadium, Dallas", goals:[] },
+  { group:"Group A", status:"final", minute:null,
+    home:{name:"Mexico",flag:"🇲🇽",score:2}, away:{name:"South Africa",flag:"🇿🇦",score:0},
+    time:"11 มิ.ย. 09:00 น.",venue:"Estadio Azteca, CDMX",
+    goals:[{team:"Mexico",scorer:"Quiñones",min:23},{team:"Mexico",scorer:"Martín",min:67}] },
+  { group:"Group A", status:"final", minute:null,
+    home:{name:"South Korea",flag:"🇰🇷",score:2}, away:{name:"Czechia",flag:"🇨🇿",score:1},
+    time:"11 มิ.ย. 12:00 น.",venue:"Estadio Akron, Guadalajara",
+    goals:[{team:"Czechia",scorer:"Krejcí",min:34},{team:"South Korea",scorer:"Hwang In-Beom",min:58},{team:"South Korea",scorer:"Oh Hyeon-Gyu",min:81}] },
+  { group:"Group B", status:"upcoming", minute:null,
+    home:{name:"Canada",flag:"🇨🇦",score:null}, away:{name:"Bosnia & Herz.",flag:"🇧🇦",score:null},
+    time:"14 มิ.ย. 02:00 น.",venue:"BMO Field, Toronto", goals:[] },
+  { group:"Group D", status:"upcoming", minute:null,
+    home:{name:"USA",flag:"🇺🇸",score:null}, away:{name:"Paraguay",flag:"🇵🇾",score:null},
+    time:"14 มิ.ย. 08:00 น.",venue:"SoFi Stadium, Inglewood", goals:[] },
+];
+
+/* =========================================================
+   LOAD SCORES — ลอง API-Football ก่อน → fallback Claude
+========================================================= */
+async function loadScores() {
+  setRefreshState(true);
+  setStatus('yellow','กำลังเชื่อม API-Football...');
+
+  try {
+    /* === ลอง API-Football (ต้องการ CORS proxy ถ้าเปิดจาก browser) ===
+       NOTE: API-Football ไม่อนุญาต CORS จาก browser โดยตรง
+       ถ้า host บน server → เรียก backend ตัวเองแทน
+       ถ้าเปิด local → ใช้ Claude fallback แทนอัตโนมัติ */
+    const today = new Date().toISOString().split('T')[0];
+    const proxyUrl = `https://v3.football.api-sports.io/fixtures?date=${today}&league=1&season=2026`;
+    const res = await fetch(proxyUrl, {
+      headers: {
+        'x-apisports-key': SPORTS_API_KEY,
+        'x-rapidapi-host': 'v3.football.api-sports.io'
+      },
+      signal: AbortSignal.timeout(5000)
+    });
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    if (json.errors && Object.keys(json.errors).length) throw new Error(Object.values(json.errors)[0]);
+    if (!json.response?.length) throw new Error('ไม่มีแมตช์วันนี้จาก API-Football');
+
+    const matches = parseApiFootball(json.response);
+    checkGoalChanges(matches);
+    renderMatches(matches);
+    setStatus('green', `เชื่อม API-Football สำเร็จ · ${json.response.length} แมตช์`);
+
+  } catch (err) {
+    // fallback: ให้ Claude ดึงข้อมูล
+    console.warn('API-Football ล้มเหลว:', err.message, '→ ใช้ Claude fallback');
+    await loadScoresFromClaude();
+  }
+
+  setRefreshState(false);
+  const now = new Date();
+  document.getElementById('sTime').textContent =
+    `อัปเดต ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')} น.`;
+}
+
+function parseApiFootball(fixtures) {
+  return fixtures.map(f => {
+    const s = f.fixture.status.short;
+    let status = 'upcoming';
+    if (['FT','PEN','AET','AWD'].includes(s)) status = 'final';
+    else if (['1H','2H','HT','ET','BT','P','SUSP','INT','LIVE'].includes(s)) status = 'live';
+
+    const dt = new Date(f.fixture.date);
+    const timeStr = dt.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Bangkok'});
+    const dateStr = dt.toLocaleDateString('th-TH',{day:'numeric',month:'short',timeZone:'Asia/Bangkok'});
+
+    return {
+      group: f.league.round || f.league.name,
+      status, minute: f.fixture.status.elapsed,
+      home: { name: f.teams.home.name, flag: teamFlag(f.teams.home.name), score: f.goals.home },
+      away: { name: f.teams.away.name, flag: teamFlag(f.teams.away.name), score: f.goals.away },
+      time: `${dateStr} ${timeStr}`, venue: f.fixture.venue?.name || '',
+      goals: []
+    };
+  }).sort((a,b) => {
+    const r = {live:0,upcoming:1,final:2};
+    return r[a.status] - r[b.status];
+  });
+}
+
+async function loadScoresFromClaude() {
+  setStatus('yellow','ใช้ Claude AI ดึงข้อมูล...');
+  try {
+    const res = await fetch(CLAUDE_URL, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-6', max_tokens:1500,
+        system:`You are a live sports data assistant. Today is ${new Date().toDateString()}.
+Return ONLY valid compact JSON, zero markdown. Schema:
+{"matches":[{"group":"string","status":"live|final|upcoming","minute":null_or_number,
+"home":{"name":"string","flag":"emoji","score":null_or_number},
+"away":{"name":"string","flag":"emoji","score":null_or_number},
+"time":"string","venue":"string",
+"goals":[{"team":"string","scorer":"string","min":number}]}]}
+Use accurate data from your knowledge for FIFA World Cup 2026.`,
+        messages:[{role:'user',content:'Give all FIFA World Cup 2026 matches played and upcoming within the last 3 days and next 2 days, with scores and goalscorers where known.'}]
+      })
+    });
+    const data = await res.json();
+    const text = data.content.map(i=>i.text||'').join('');
+    const json = JSON.parse(text.replace(/```json|```/g,'').trim());
+    if (json.matches?.length) {
+      checkGoalChanges(json.matches);
+      renderMatches(json.matches);
+      setStatus('green','ข้อมูลจาก Claude AI (สำรอง)');
+    } else throw new Error('empty');
+  } catch(e) {
+    renderMatches(FALLBACK_MATCHES);
+    setStatus('red','ข้อมูลจำลอง (API ไม่ตอบสนอง)');
+  }
+}
+
+/* =========================================================
+   RENDER MATCHES
+========================================================= */
+function renderMatches(matches) {
+  const live = matches.filter(m=>m.status==='live');
+  const soon = matches.filter(m=>m.status==='upcoming');
+  const done = matches.filter(m=>m.status==='final');
+  let html='';
+
+  if (live.length) {
+    html += `<div class="section-label">🔴 กำลังแข่ง LIVE</div>`;
+    live.forEach(m => html += matchCard(m));
+  }
+  if (soon.length) {
+    html += `<div class="section-label">📅 กำลังจะเตะ</div>`;
+    soon.forEach(m => html += matchCard(m));
+  }
+  if (done.length) {
+    html += `<div class="section-label">✅ ผลล่าสุด</div>`;
+    done.forEach(m => html += matchCard(m));
+  }
+  if (!html) html = '<div class="loading-center" style="color:var(--text3)">ไม่พบข้อมูลแมตช์</div>';
+  document.getElementById('scores-content').innerHTML = html;
+}
+
+function matchCard(m) {
+  const sClass = {live:'s-live',final:'s-final',upcoming:'s-soon'}[m.status];
+  const sText = m.status==='live' ? `🔴 LIVE ${m.minute?m.minute+"'":''}` :
+                m.status==='final' ? '✅ จบแล้ว' : `⏰ ${m.time}`;
+  const scoreHTML = m.home.score!==null
+    ? `<div class="score-wrap"><span class="score-n">${m.home.score}</span><span class="score-sep">:</span><span class="score-n">${m.away.score}</span></div>`
+    : `<div class="score-wrap"><span class="score-n" style="font-size:15px;color:var(--text3)">VS</span></div>`;
+  const goalsHTML = m.goals?.length
+    ? `<div class="goals-list">${m.goals.map(g=>`<div class="goal-row"><span class="goal-min">${g.min}'</span>⚽ ${g.scorer} <span style="color:var(--text3)">(${g.team})</span></div>`).join('')}</div>` : '';
+
+  return `<div class="match-card ${m.status}">
+    <div class="mc-status">
+      <span class="${sClass}">${sText}</span>
+      <span style="color:var(--text3)">·</span>
+      <span style="color:var(--text3)">${m.group}</span>
+    </div>
+    <div class="mc-teams">
+      <span class="team-nm">${m.home.flag} ${m.home.name}</span>
+      ${scoreHTML}
+      <span class="team-nm away">${m.away.name} ${m.away.flag}</span>
+    </div>
+    <div class="mc-meta"><span>${m.venue||''}</span><span>${m.status!=='live'?m.time:''}</span></div>
+    ${goalsHTML}
+  </div>`;
+}
+
+/* =========================================================
+   PREDICTIONS (Gemini + Claude fallback)
+========================================================= */
+const PRED_MATCHES = [
+  {id:'p_arg_alg', home:'Argentina 🇦🇷', away:'Algeria 🇩🇿', group:'Group J', time:'14 มิ.ย. 02:00 น.'},
+  {id:'p_fra_sen', home:'France 🇫🇷', away:'Senegal 🇸🇳', group:'Group I', time:'14 มิ.ย. 08:00 น.'},
+  {id:'p_can_bos', home:'Canada 🇨🇦', away:'Bosnia & Herz. 🇧🇦', group:'Group B', time:'14 มิ.ย. 02:00 น.'},
+  {id:'p_usa_par', home:'USA 🇺🇸', away:'Paraguay 🇵🇾', group:'Group D', time:'14 มิ.ย. 08:00 น.'},
+  {id:'p_ger_civ', home:'Germany 🇩🇪', away:'Ivory Coast 🇨🇮', group:'Group E', time:'15 มิ.ย. 02:00 น.'},
+  {id:'p_bra_mor', home:'Brazil 🇧🇷', away:'Morocco 🇲🇦', group:'Group C', time:'15 มิ.ย. 08:00 น.'},
+];
+
+let savedPreds = {};
+try { savedPreds = JSON.parse(localStorage.getItem('wc26_preds_v2') || '{}'); } catch(e){}
+
+function savePreds() { try { localStorage.setItem('wc26_preds_v2', JSON.stringify(savedPreds)); } catch(e){} }
+
+async function analyze(id, home, away, group, time) {
+  const btn = document.getElementById('abtn_'+id);
+  if (btn) { btn.disabled=true; btn.innerHTML='<span class="spin"></span> กำลังวิเคราะห์...'; }
+
+  const prompt = `You are a football expert. Analyze FIFA World Cup 2026 match: ${home} vs ${away} (${group}). 
+Today is ${new Date().toDateString()}. Consider: form, head-to-head, squad depth, injuries, home advantage.
+Return ONLY valid JSON (no markdown): {"winner":"TeamName","homeWin":45,"draw":25,"awayWin":30,"reasons":"<strong>Key factor:</strong> explanation in Thai. Use <br><br> between points. 2-3 factors."}`;
+
+  let pred = null;
+
+  // ลอง Gemini ก่อน
+  if (GEMINI_API_KEY) {
+    try {
+      const res = await fetch(GEMINI_URL, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({contents:[{parts:[{text:prompt}]}]})
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error?.message||'Gemini error');
+      const text = data.candidates[0].content.parts[0].text;
+      pred = JSON.parse(text.replace(/```json|```/g,'').trim());
+      pred.source = 'Gemini';
+    } catch(e) { console.warn('Gemini:', e.message); }
+  }
+
+  // fallback: Claude
+  if (!pred) {
+    try {
+      const res = await fetch(CLAUDE_URL, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          model:'claude-sonnet-4-6', max_tokens:600,
+          messages:[{role:'user',content:prompt}]
+        })
+      });
+      const data = await res.json();
+      const text = data.content.map(i=>i.text||'').join('');
+      pred = JSON.parse(text.replace(/```json|```/g,'').trim());
+      pred.source = 'Claude';
+    } catch(e) {
+      if (btn) { btn.disabled=false; btn.innerHTML='⚠️ ลองใหม่'; }
+      const err = document.getElementById('err_'+id);
+      if (err) err.innerHTML = `<div class="err-box">เกิดข้อผิดพลาด ลองกด refresh หน้า</div>`;
+      return;
+    }
+  }
+
+  pred.id=id; pred.home=home; pred.away=away; pred.group=group; pred.time=time;
+  savedPreds[id] = pred; savePreds();
+  renderPredCards();
+}
+
+function renderPredCards() {
+  let html = '';
+  PRED_MATCHES.forEach(m => {
+    const p = savedPreds[m.id];
+    if (!p) {
+      html += `<div class="pred-card">
+        <div class="pred-title">${m.home} vs ${m.away}</div>
+        <div class="pred-sub">${m.group} · ${m.time}</div>
+        <button class="btn-ai" id="abtn_${m.id}" onclick="analyze('${m.id}','${m.home}','${m.away}','${m.group}','${m.time}')">
+          ✨ วิเคราะห์ด้วย AI
+        </button>
+        <div id="err_${m.id}"></div>
+      </div>`;
+    } else {
+      html += `<div class="pred-card">
+        <div class="pred-title">${p.home} vs ${p.away}</div>
+        <div class="pred-sub">${p.group} · ${p.time} · ${p.source||'AI'}</div>
+        <div class="winner-chip">🏆 คาดว่า ${p.winner} ชนะ</div>
+        <div class="bar">
+          <div class="bh" style="flex:${p.homeWin}"></div>
+          <div class="bd" style="flex:${p.draw}"></div>
+          <div class="ba" style="flex:${p.awayWin}"></div>
+        </div>
+        <div class="bar-labels">
+          <span class="bl-h">${p.homeWin}% เหย้า</span>
+          <span class="bl-d">${p.draw}% เสมอ</span>
+          <span class="bl-a">${p.awayWin}% เยือน</span>
+        </div>
+        <div class="pred-reason">${p.reasons||''}</div>
+        <button class="btn-ai grey" id="abtn_${m.id}" style="margin-top:10px" onclick="analyze('${m.id}','${m.home}','${m.away}','${m.group}','${m.time}')">
+          🔄 วิเคราะห์ใหม่
+        </button>
+      </div>`;
+    }
+  });
+  document.getElementById('predict-content').innerHTML = html;
+}
+
+/* =========================================================
+   ALL 12 GROUPS
+========================================================= */
+const ALL_GROUPS = [
+  {n:"A", teams:[
+    {t:"Mexico 🇲🇽",p:1,w:1,d:0,l:0,f:2,a:0,pts:3},
+    {t:"South Korea 🇰🇷",p:1,w:1,d:0,l:0,f:2,a:1,pts:3},
+    {t:"Czechia 🇨🇿",p:1,w:0,d:0,l:1,f:1,a:2,pts:0},
+    {t:"South Africa 🇿🇦",p:1,w:0,d:0,l:1,f:0,a:2,pts:0},
+  ]},
+  {n:"B", teams:[
+    {t:"Canada 🇨🇦",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+    {t:"Bosnia & Herz. 🇧🇦",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+    {t:"Qatar 🇶🇦",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+    {t:"Switzerland 🇨🇭",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+  ]},
+  {n:"C", teams:[
+    {t:"Brazil 🇧🇷",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+    {t:"Morocco 🇲🇦",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+    {t:"Scotland 🏴󠁧󠁢󠁳󠁣󠁴󠁿",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+    {t:"Haiti 🇭🇹",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+  ]},
+  {n:"D", teams:[
+    {t:"USA 🇺🇸",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+    {t:"Turkey 🇹🇷",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+    {t:"Australia 🇦🇺",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+    {t:"Paraguay 🇵🇾",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+  ]},
+  {n:"E", teams:[
+    {t:"Germany 🇩🇪",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+    {t:"Ivory Coast 🇨🇮",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+    {t:"Ecuador 🇪🇨",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+    {t:"Curaçao 🇨🇼",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+  ]},
+  {n:"F", teams:[
+    {t:"Netherlands 🇳🇱",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+    {t:"Japan 🇯🇵",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+    {t:"Sweden 🇸🇪",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+    {t:"Tunisia 🇹🇳",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+  ]},
+  {n:"G", teams:[
+    {t:"Belgium 🇧🇪",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+    {t:"Egypt 🇪🇬",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+    {t:"Iran 🇮🇷",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+    {t:"New Zealand 🇳🇿",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+  ]},
+  {n:"H", teams:[
+    {t:"Spain 🇪🇸",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+    {t:"Saudi Arabia 🇸🇦",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+    {t:"Uruguay 🇺🇾",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+    {t:"Cape Verde 🇨🇻",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+  ]},
+  {n:"I", teams:[
+    {t:"France 🇫🇷",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+    {t:"Senegal 🇸🇳",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+    {t:"Iraq 🇮🇶",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+    {t:"Norway 🇳🇴",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+  ]},
+  {n:"J", teams:[
+    {t:"Argentina 🇦🇷",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+    {t:"Algeria 🇩🇿",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+    {t:"Austria 🇦🇹",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+    {t:"Jordan 🇯🇴",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+  ]},
+  {n:"K", teams:[
+    {t:"Portugal 🇵🇹",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+    {t:"DR Congo 🇨🇩",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+    {t:"Uzbekistan 🇺🇿",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+    {t:"Colombia 🇨🇴",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+  ]},
+  {n:"L", teams:[
+    {t:"England 🏴󠁧󠁢󠁥󠁮󠁧󠁿",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+    {t:"Croatia 🇭🇷",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+    {t:"Ghana 🇬🇭",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+    {t:"Panama 🇵🇦",p:0,w:0,d:0,l:0,f:0,a:0,pts:0},
+  ]},
+];
+
+function renderGroups() {
+  let html = '<div class="groups-grid">';
+  ALL_GROUPS.forEach(g => {
+    const sorted = [...g.teams].sort((a,b)=>b.pts-a.pts||(b.f-b.a)-(a.f-a.a));
+    html += `<div class="grp-card">
+      <div class="grp-hdr">GROUP ${g.n}</div>
+      <table>
+        <thead><tr>
+          <th class="tl">ทีม</th>
+          <th>แข่ง</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>แต้ม</th>
+        </tr></thead>
+        <tbody>
+          ${sorted.map((t,i)=>`
+          <tr class="${i<2?'qualified':'out'}">
+            <td class="tl">${t.t}</td>
+            <td>${t.p}</td><td>${t.w}</td><td>${t.d}</td><td>${t.l}</td>
+            <td>${t.f-t.a>=0?'+':''}${t.f-t.a}</td>
+            <td class="${t.pts>0?'pts-val':''}">${t.pts}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+  });
+  html += '</div>';
+  document.getElementById('groups-content').innerHTML = html;
+}
+
+/* =========================================================
+   UTILITIES
+========================================================= */
+function showTab(id, el) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+}
+
+function setStatus(color, msg) {
+  document.getElementById('sDot').className = `dot ${color}`;
+  document.getElementById('sMsg').textContent = msg;
+}
+
+function setRefreshState(loading) {
+  document.getElementById('rfSpin').style.display = loading ? 'inline-block' : 'none';
+}
+
+function teamFlag(name) {
+  const flags = {
+    'Argentina':'🇦🇷','Algeria':'🇩🇿','France':'🇫🇷','Senegal':'🇸🇳',
+    'Mexico':'🇲🇽','South Africa':'🇿🇦','South Korea':'🇰🇷','Czechia':'🇨🇿',
+    'USA':'🇺🇸','United States':'🇺🇸','Paraguay':'🇵🇾',
+    'Canada':'🇨🇦','Brazil':'🇧🇷','Germany':'🇩🇪',
+    'Spain':'🇪🇸','England':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Portugal':'🇵🇹','Netherlands':'🇳🇱',
+    'Japan':'🇯🇵','Morocco':'🇲🇦','Belgium':'🇧🇪','Croatia':'🇭🇷',
+    'Switzerland':'🇨🇭','Uruguay':'🇺🇾','Turkey':'🇹🇷','Türkiye':'🇹🇷',
+    'Australia':'🇦🇺','Ghana':'🇬🇭','Saudi Arabia':'🇸🇦',
+    'Ivory Coast':'🇨🇮',"Côte d'Ivoire":'🇨🇮',
+  };
+  return flags[name] || '🏳️';
+}
+
+/* =========================================================
+   INIT
+========================================================= */
+document.addEventListener('DOMContentLoaded', () => {
+  loadScores();
+  renderPredCards();
+  renderGroups();
+});
+</script>
 </body>
 </html>
